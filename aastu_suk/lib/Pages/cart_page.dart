@@ -1,6 +1,11 @@
+import 'dart:ffi';
+
+import 'package:aastu_suk/components/cartTile.dart';
 import 'package:aastu_suk/components/myDrawer.dart';
 import 'package:aastu_suk/models/appProvider.dart';
 import 'package:aastu_suk/models/cartItem.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +19,15 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  final currentUser = FirebaseAuth.instance.currentUser;
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserData() async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser?.email)
+        .get();
+  }
+
   @override
   Widget build(BuildContext context) {
     final allShops = Provider.of<AppProvider>(context);
@@ -45,156 +59,51 @@ class _CartPageState extends State<CartPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cart'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: Container(
-          child: ListView.builder(
-              itemCount: allShops.cartItemCount,
-              itemBuilder: ((context, index) {
-                // return Text("data");
-                return SizedBox(
-                  height: 150,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                allShops.cartItems[index].product.name,
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .inversePrimary),
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    "Amount: ",
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .inversePrimary),
-                                  ),
-                                  Text(
-                                    allShops.cartItems[index].count.toString(),
-                                    style: TextStyle(
-                                        // fontSize: 20,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .inversePrimary),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                border: Border.all(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .background
-                                        .withOpacity(.9)),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: IconButton(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inversePrimary,
-                                  onPressed: () {
-                                    removeFromCartConfirm(
-                                        context, allShops.cartItems[index]);
-                                  },
-                                  icon: const Icon(Icons.delete, size: 15)),
-                            ),
-                            Row(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .background
-                                            .withOpacity(.9)),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: IconButton(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .inversePrimary,
-                                      onPressed: () {
-                                        int count =
-                                            allShops.cartItems[index].count;
-                                        if (count > 1) {
-                                          setState(() {
-                                            allShops.cartItems[index].count -= 1;
-                                          });
-                                        } else {
-                                          removeFromCartConfirm(context,
-                                              allShops.cartItems[index]);
-                                        }
-                                      },
-                                      icon: Container(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 10),
-                                          child: const Icon(Icons.minimize,
-                                              size: 15))),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .background
-                                            .withOpacity(.9)),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: IconButton(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .inversePrimary,
-                                      onPressed: () {
-                                        setState(() {
-                                          allShops.cartItems[index].count += 1;
-                                        });
-                                      },
-                                      icon: const Icon(Icons.add, size: 15)),
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+        appBar: AppBar(
+          title: const Text('Cart'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: FutureBuilder(
+          future: getUserData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            }
+
+            if (snapshot.hasData) {
+              Map<String, dynamic>? userData = snapshot.data?.data();
+
+              if (userData!['cart'].isEmpty) {
+                return const Center(
+                  child: Text("There are no items to display."),
                 );
-              }))),
-      // drawer: MyDrawer(),
-    );
+              } else {
+                return ListView.builder(
+                  itemCount: userData['cart'].length,
+                  itemBuilder: ((context, index) {
+                    return CartTile(
+                        count: userData['cart'][index]['count'],
+                        from: userData['cart'][index]['from'],
+                        name: userData['cart'][index]['name']);
+                  }),
+                );
+              }
+            }
+
+            return const Center(
+              child: Text('No data available!'),
+            );
+          },
+        )
+        // drawer: MyDrawer(),
+        );
   }
 }

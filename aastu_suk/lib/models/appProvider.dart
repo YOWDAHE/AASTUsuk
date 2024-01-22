@@ -1,6 +1,7 @@
 import 'package:aastu_suk/models/cartItem.dart';
 import 'package:aastu_suk/models/product.dart';
 import 'package:aastu_suk/models/shop.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 class AppProvider extends ChangeNotifier {
@@ -12,6 +13,8 @@ class AppProvider extends ChangeNotifier {
 
   int get cartItemCount => cartItems.length;
   int get shopsCount => shops.length;
+
+  // UserCredential appUserCredential;
 
   void addTOCart(Product newProduct) {
     final newCartItem = CartItem(product: newProduct, count: 1);

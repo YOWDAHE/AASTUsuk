@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:aastu_suk/Pages/cart_page.dart';
 import 'package:aastu_suk/Pages/intro_page.dart';
 import 'package:aastu_suk/components/myDrawerListTile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -10,6 +11,33 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void logOutUser() {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: ((context) => AlertDialog(
+              elevation: 5,
+              content: const Text(
+                "Are you sure you want to log out?",
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                MaterialButton(
+                  onPressed: (() {
+                    Navigator.pop(context);
+                    FirebaseAuth.instance.signOut();
+                  }),
+                  child: const Text("Yes"),
+                ),
+                MaterialButton(
+                  onPressed: (() => Navigator.pop(context)),
+                  child: const Text("Cancel"),
+                )
+              ],
+            )),
+      );
+    }
+
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.primary,
       elevation: 0,
@@ -46,7 +74,9 @@ class MyDrawer extends StatelessWidget {
               ],
             ),
             MyDrawerListTile(
-                icon: Icons.exit_to_app, title: "Exit", onTap: ()=>Navigator.pushNamedAndRemoveUntil(context, IntroPage.route, (route) => false))
+                icon: Icons.exit_to_app,
+                title: "Log Out",
+                onTap: () => logOutUser())
           ],
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:aastu_suk/components/myDrawer.dart';
 import 'package:aastu_suk/models/appProvider.dart';
 import 'package:aastu_suk/models/product.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,7 @@ class ShopPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final allShops = Provider.of<AppProvider>(context);
+
 
     void addTOCartConfirm(BuildContext context2, Product product) {
       showDialog(
