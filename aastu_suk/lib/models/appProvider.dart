@@ -5,10 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 class AppProvider extends ChangeNotifier {
+
   List<Shop> shops = [
-    Shop(name: "AASTU", location: "infron of kk", expireTime: 30),
-    Shop(name: "KK", location: "infron of AASTU", expireTime: 90),
+    Shop(name: "AASTU", location: "infron of kk", expireTime: 30, orders: [], products: [], owner: "unknown"),
+    Shop(name: "KK", location: "infron of AASTU", expireTime: 90, orders: [], products: [], owner: "unknown"),
   ];
+  
   List<CartItem> cartItems = [];
 
   int get cartItemCount => cartItems.length;
