@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:aastu_suk/Pages/add_shop.dart';
 import 'package:aastu_suk/Pages/cart_page.dart';
 import 'package:aastu_suk/Pages/intro_page.dart';
 import 'package:aastu_suk/components/myDrawerListTile.dart';
@@ -66,6 +67,13 @@ class MyDrawer extends StatelessWidget {
                             onTap: () {
                               Navigator.pop(context);
                               Navigator.pushNamed(context, CartPage.route);
+                            }),
+                        MyDrawerListTile(
+                            icon: Icons.add_business,
+                            title: "Add Shop",
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, AddShop.route);
                             }),
                       ],
                     ),

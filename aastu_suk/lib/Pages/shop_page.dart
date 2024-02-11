@@ -1,3 +1,5 @@
+import 'package:aastu_suk/Pages/personalShop.dart';
+import 'package:aastu_suk/Pages/singleShop.dart';
 import 'package:aastu_suk/components/myDrawer.dart';
 import 'package:aastu_suk/components/productTile.dart';
 import 'package:aastu_suk/models/appProvider.dart';
@@ -15,7 +17,7 @@ class ShopPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allShops = Provider.of<AppProvider>(context);
+    final myShop = Provider.of<AppProvider>(context);
 
     void addTOCartConfirm(BuildContext context2, Product product) {
       showDialog(
@@ -30,7 +32,6 @@ class ShopPage extends StatelessWidget {
                 MaterialButton(
                   onPressed: (() {
                     Navigator.pop(context);
-                    allShops.addTOCart(product);
                   }),
                   child: const Text("Ok"),
                 ),
@@ -49,6 +50,17 @@ class ShopPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+              onPressed: (() {
+                Navigator.pushNamed(context, PersonalShop.route);
+              }),
+              icon: const Icon(
+                Icons.shopify_outlined,
+                size: 40,
+                color: Colors.deepPurple,
+              ))
+        ],
       ),
       body: Container(
           child: StreamBuilder(
@@ -73,20 +85,37 @@ class ShopPage extends StatelessWidget {
                 itemCount: shops.length,
                 itemBuilder: ((context, index) {
                   final products = shops[index]['Products'];
-
+                  if (shops[index]['creatorID'] ==
+                      FirebaseAuth.instance.currentUser!.email) {
+                    myShop.changeMyShop(shops[index].id);
+                  }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.only(left: 20, top: 20),
-                        child: Text(shops[index]['name'],
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .inversePrimary
-                                    .withOpacity(.9),
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18)),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(context, SingleShop.route,
+                              arguments: {
+                                'name': shops[index]['name'],
+                                'location': shops[index]['location'],
+                                'image': shops[index]['image'],
+                                'creatorID': shops[index]['creatorID'],
+                                'Orders': shops[index]['Orders'],
+                                'Products': shops[index]['Products'],
+                                'Owner': shops[index]['Owner'],
+                              });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 20, top: 20),
+                          child: Text(shops[index]['name'],
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .inversePrimary
+                                      .withOpacity(.9),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18)),
+                        ),
                       ),
                       const SizedBox(
                         height: 5,
@@ -105,20 +134,28 @@ class ShopPage extends StatelessWidget {
                       const SizedBox(
                         height: 25,
                       ),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxHeight:
-                                MediaQuery.of(context).size.height / 1.7),
-                        child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: 1,
-                            itemBuilder: ((context, indextwo) {
-                              return ProductTile(
-                                  name: products[indextwo]['name'],
-                                  desc: products[indextwo]['desc'],
-                                  price: products[indextwo]['price']);
-                            })),
-                      )
+                      shops[index]['Products'].isEmpty
+                          ? ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height / 8),
+                              child: const Center(
+                                  child: Text("No Products yet!!")),
+                            )
+                          : ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height / 1.7),
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 1,
+                                  itemBuilder: ((context, indextwo) {
+                                    return ProductTile(
+                                        name: products[indextwo]['name'],
+                                        desc: products[indextwo]['desc'],
+                                        price: products[indextwo]['price']);
+                                  })),
+                            )
                     ],
                   );
                 }));

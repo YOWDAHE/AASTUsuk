@@ -1,16 +1,35 @@
 import 'package:aastu_suk/models/cartItem.dart';
 import 'package:aastu_suk/models/product.dart';
 import 'package:aastu_suk/models/shop.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 class AppProvider extends ChangeNotifier {
+  String myShop = "";
+
+  void changeMyShop(String name) {
+    myShop = name;
+    notifyListeners();
+  }
 
   List<Shop> shops = [
-    Shop(name: "AASTU", location: "infron of kk", expireTime: 30, orders: [], products: [], owner: "unknown"),
-    Shop(name: "KK", location: "infron of AASTU", expireTime: 90, orders: [], products: [], owner: "unknown"),
+    Shop(
+        name: "AASTU",
+        location: "infron of kk",
+        expireTime: 30,
+        orders: [],
+        products: [],
+        owner: "unknown"),
+    Shop(
+        name: "KK",
+        location: "infron of AASTU",
+        expireTime: 90,
+        orders: [],
+        products: [],
+        owner: "unknown"),
   ];
-  
+
   List<CartItem> cartItems = [];
 
   int get cartItemCount => cartItems.length;
@@ -28,14 +47,4 @@ class AppProvider extends ChangeNotifier {
     cartItems.remove(cartItem);
     notifyListeners();
   }
-
-  // void removeFromCartByIndex(int index) {
-  //   cartItems.removeAt(index);
-  //   notifyListeners();
-  // }
-
-  // void removeFromCartByName(String name) {
-  //   cartItems.removeWhere((element) => element.product.name == name);
-  //   notifyListeners();
-  // }
 }

@@ -13,3 +13,4 @@ class Product {
       this.expireTime = 0
       });
 }
+
